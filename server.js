@@ -50,7 +50,11 @@ app.use('/api/orders', orderRoutes);
 app.use('/api/payments', paymentRoutes);
 app.use('/api/admin', adminRoutes);
 
-app.use(notFound);
+// Serve admin panel at /admin, public panel at /
+app.use('/admin', express.static(path.join(__dirname, 'admin-panel')));
+app.use('/', express.static(path.join(__dirname, 'public-panel')));
+
+app.use('/api', notFound);
 app.use(errorHandler);
 
 const PORT = process.env.PORT || 5000;

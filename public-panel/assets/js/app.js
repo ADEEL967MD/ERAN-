@@ -1,5 +1,5 @@
 // ===== ERAN+ Public Panel - Core App Logic =====
-const API_BASE_URL = "https://your-backend-domain.example";
+const API_BASE_URL = ""; // relative - same server serves this frontend
 
 const Auth = {
   getToken: () => localStorage.getItem('eranplus_token'),

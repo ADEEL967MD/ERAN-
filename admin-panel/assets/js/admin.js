@@ -1,5 +1,5 @@
 // ===== ERAN+ Admin Panel - Core Logic =====
-const API_BASE_URL = "https://your-backend-domain.example";
+const API_BASE_URL = ""; // relative - same server serves this frontend
 
 const AdminAuth = {
   getToken: () => localStorage.getItem('eranplus_admin_token'),
