@@ -1,0 +1,12 @@
+{
+  "name": "eran-plus/unified-panel",
+  "description": "Unified ERAN+ public and admin PHP application",
+  "license": "proprietary",
+  "require": {
+    "php": ">=8.2",
+    "ext-curl": "*",
+    "ext-fileinfo": "*",
+    "ext-pdo": "*",
+    "ext-pdo_mysql": "*"
+  }
+}
