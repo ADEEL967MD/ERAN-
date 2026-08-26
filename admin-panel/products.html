@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Products - ERAN+ Admin</title>
+<link rel="stylesheet" href="assets/css/admin.css">
+</head>
+<body>
+<div class="ad-sidebar">
+  <div class="ad-logo">ERAN<span>+</span></div>
+  <nav class="ad-nav">
+    <a href="index.html">Dashboard</a>
+    <a href="products.html" class="active">Products</a>
+    <a href="orders.html">Orders</a>
+    <a href="customers.html">Customers</a>
+    <a href="payments.html">Payments</a>
+    <a href="users.html">Users</a>
+    <a href="support.html">Support Links</a>
+    <a href="settings.html">Settings</a>
+    <a href="#" data-admin-logout style="color:#ff8080;">Logout</a>
+  </nav>
+</div>
+<div class="ad-main">
+  <div class="ad-topbar">
+    <div class="ad-title">Products</div>
+    <button class="ad-btn" onclick="openModal()">+ Add Product</button>
+  </div>
+  <div class="ad-card">
+    <table>
+      <thead><tr><th>Image</th><th>Name</th><th>Category</th><th>Price</th><th>Stock</th><th>Status</th><th>Actions</th></tr></thead>
+      <tbody id="productsBody"></tbody>
+    </table>
+  </div>
+</div>
+
+<div class="ad-modal-overlay" id="modalOverlay">
+  <div class="ad-modal">
+    <h3 id="modalTitle" style="margin-bottom:14px;">Add Product</h3>
+    <form id="productForm">
+      <input type="hidden" id="productId">
+      <label class="ad-label">Name</label>
+      <input class="ad-input" id="pName" required>
+      <label class="ad-label">Description</label>
+      <textarea class="ad-input" id="pDescription" rows="3" required></textarea>
+      <label class="ad-label">Price</label>
+      <input class="ad-input" type="number" id="pPrice" required>
+      <label class="ad-label">Stock</label>
+      <input class="ad-input" type="number" id="pStock" required>
+      <label class="ad-label">Category</label>
+      <input class="ad-input" id="pCategory" required>
+      <label class="ad-label">Status</label>
+      <select class="ad-input" id="pStatus"><option value="active">Active</option><option value="disabled">Disabled</option></select>
+      <label class="ad-label">Image</label>
+      <input class="ad-input" type="file" id="pImage" accept="image/*">
+      <div style="display:flex;gap:10px;margin-top:10px;">
+        <button type="submit" class="ad-btn" style="flex:1;">Save</button>
+        <button type="button" class="ad-btn ad-btn-outline" style="flex:1;" onclick="closeModal()">Cancel</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script src="assets/js/admin.js"></script>
+<script>
+requireAdminAuth();
+
+async function loadProducts() {
+  const { products } = await adminApi('/admin/products');
+  document.getElementById('productsBody').innerHTML = products.map(p => `
+    <tr>
+      <td><img src="${p.image || ''}" style="width:40px;height:40px;border-radius:8px;object-fit:cover;background:#f4f5fa;"></td>
+      <td>${p.name}</td>
+      <td>${p.category}</td>
+      <td>${money(p.price)}</td>
+      <td>${p.stock}</td>
+      <td><span class="ad-badge status-${p.status}">${p.status}</span></td>
+      <td>
+        <button class="ad-btn ad-btn-sm" onclick='editProduct(${JSON.stringify(p)})'>Edit</button>
+        <button class="ad-btn ad-btn-sm ad-btn-danger" onclick="deleteProduct('${p._id}')">Delete</button>
+      </td>
+    </tr>
+  `).join('');
+}
+loadProducts();
+
+function openModal() {
+  document.getElementById('modalTitle').textContent = 'Add Product';
+  document.getElementById('productForm').reset();
+  document.getElementById('productId').value = '';
+  document.getElementById('modalOverlay').classList.add('show');
+}
+function closeModal() { document.getElementById('modalOverlay').classList.remove('show'); }
+
+function editProduct(p) {
+  document.getElementById('modalTitle').textContent = 'Edit Product';
+  document.getElementById('productId').value = p._id;
+  document.getElementById('pName').value = p.name;
+  document.getElementById('pDescription').value = p.description;
+  document.getElementById('pPrice').value = p.price;
+  document.getElementById('pStock').value = p.stock;
+  document.getElementById('pCategory').value = p.category;
+  document.getElementById('pStatus').value = p.status;
+  document.getElementById('modalOverlay').classList.add('show');
+}
+
+async function deleteProduct(id) {
+  if (!confirm('Delete this product?')) return;
+  await adminApi(`/admin/products/${id}`, 'DELETE');
+  toast('Product deleted');
+  loadProducts();
+}
+
+document.getElementById('productForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const id = document.getElementById('productId').value;
+  const formData = new FormData();
+  formData.append('name', document.getElementById('pName').value);
+  formData.append('description', document.getElementById('pDescription').value);
+  formData.append('price', document.getElementById('pPrice').value);
+  formData.append('stock', document.getElementById('pStock').value);
+  formData.append('category', document.getElementById('pCategory').value);
+  formData.append('status', document.getElementById('pStatus').value);
+  const fileInput = document.getElementById('pImage');
+  if (fileInput.files[0]) formData.append('image', fileInput.files[0]);
+
+  try {
+    if (id) {
+      await adminApi(`/admin/products/${id}`, 'PATCH', formData, true);
+      toast('Product updated');
+    } else {
+      await adminApi('/admin/products', 'POST', formData, true);
+      toast('Product added');
+    }
+    closeModal();
+    loadProducts();
+  } catch (err) { toast(err.message, 'error'); }
+});
+</script>
+</body>
+</html>

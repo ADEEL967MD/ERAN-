@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cart - ERAN+</title>
+<link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+<div class="ep-header"><div class="ep-logo">ERAN<span>+</span></div></div>
+<div class="ep-container">
+  <h1 style="font-size:20px;margin-bottom:12px;">Your Cart</h1>
+  <div id="cartItems"></div>
+  <div class="ep-card" id="cartSummary" style="display:none;">
+    <div style="display:flex;justify-content:space-between;font-weight:800;font-size:18px;">
+      <span>Total</span><span id="cartTotal"></span>
+    </div>
+    <a href="checkout.html" class="ep-btn" style="margin-top:14px;">Proceed to Checkout</a>
+  </div>
+</div>
+<script src="assets/js/app.js"></script>
+<script>
+function renderCart() {
+  const items = Cart.get();
+  const container = document.getElementById('cartItems');
+  const summary = document.getElementById('cartSummary');
+  if (!items.length) {
+    container.innerHTML = '<p style="color:#a6acc2;text-align:center;margin-top:30px;">Your cart is empty</p>';
+    summary.style.display = 'none';
+    return;
+  }
+  container.innerHTML = items.map(i => `
+    <div class="ep-card" style="display:flex;gap:12px;align-items:center;">
+      <img src="${i.image || 'assets/images/placeholder.png'}" style="width:60px;height:60px;border-radius:10px;object-fit:cover;">
+      <div style="flex:1;">
+        <div style="font-weight:700;font-size:14px;">${i.name}</div>
+        <div style="color:#6c3ce9;font-weight:700;">${money(i.price)}</div>
+        <div style="display:flex;align-items:center;gap:8px;margin-top:6px;">
+          <button class="ep-btn ep-btn-outline ep-btn-sm" onclick="changeQty('${i.productId}', ${i.quantity - 1})">-</button>
+          <span>${i.quantity}</span>
+          <button class="ep-btn ep-btn-outline ep-btn-sm" onclick="changeQty('${i.productId}', ${i.quantity + 1})">+</button>
+          <button style="margin-left:auto;color:#c0392b;background:none;border:none;font-size:13px;" onclick="removeItem('${i.productId}')">Remove</button>
+        </div>
+      </div>
+    </div>
+  `).join('');
+  summary.style.display = 'block';
+  document.getElementById('cartTotal').textContent = money(Cart.total());
+}
+function changeQty(id, qty) { Cart.update(id, qty); renderCart(); }
+function removeItem(id) { Cart.remove(id); renderCart(); }
+renderCart();
+</script>
+</body>
+</html>

@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Profile - ERAN+</title>
+<link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+<div class="ep-header"><div class="ep-logo">ERAN<span>+</span></div></div>
+<div class="ep-container">
+  <div class="ep-card">
+    <form id="profileForm">
+      <label class="ep-label">Full Name</label>
+      <input class="ep-input" id="name" required>
+      <label class="ep-label">Phone</label>
+      <input class="ep-input" id="phone" required>
+      <label class="ep-label">Email</label>
+      <input class="ep-input" id="email" disabled>
+      <button type="submit" class="ep-btn">Save Changes</button>
+    </form>
+  </div>
+  <a href="change-password.html" class="ep-btn ep-btn-outline" style="margin-bottom:12px;display:block;">Change Password</a>
+  <button class="ep-btn" style="background:#c0392b;" data-logout>Logout</button>
+</div>
+<div class="ep-bottom-nav">
+  <a href="dashboard.html">🏠<br>Home</a>
+  <a href="products.html">🛍️<br>Shop</a>
+  <a href="orders.html">📦<br>Orders</a>
+  <a href="profile.html" class="active">👤<br>Profile</a>
+</div>
+<script src="assets/js/app.js"></script>
+<script>
+requireAuth();
+(async () => {
+  const { user } = await apiRequest('/user/profile');
+  document.getElementById('name').value = user.name;
+  document.getElementById('phone').value = user.phone;
+  document.getElementById('email').value = user.email;
+})();
+document.getElementById('profileForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  try {
+    await apiRequest('/user/profile', 'PATCH', {
+      name: document.getElementById('name').value,
+      phone: document.getElementById('phone').value
+    });
+    toast('Profile updated!');
+  } catch (err) { toast(err.message, 'error'); }
+});
+</script>
+</body>
+</html>

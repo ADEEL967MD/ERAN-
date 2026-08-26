@@ -1,2 +1,0 @@
-<?php $pageTitle = $pageTitle ?? APP_NAME; $currentPage = basename($_SERVER['PHP_SELF']); ?>
-<header class="topbar"><button class="hamburger-btn" type="button" aria-label="Open menu"><i class="fas fa-bars"></i></button><a class="brand" href="<?= e(appUrl('dashboard.php')) ?>"><span class="brand-mark">GM</span><span><?= e(APP_NAME) ?></span></a><div class="topbar-actions"><span class="online-badge"><i class="fas fa-circle"></i> Online</span><a href="<?= e(appUrl('profile.php')) ?>" class="icon-btn" aria-label="Profile"><i class="fas fa-user"></i></a></div></header>

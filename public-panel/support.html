@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Support - ERAN+</title>
+<link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+<div class="ep-header"><div class="ep-logo">ERAN<span>+</span></div></div>
+<div class="ep-container">
+  <h1 style="font-size:20px;margin-bottom:12px;">Support</h1>
+  <div id="supportLinks"></div>
+</div>
+<script src="assets/js/app.js"></script>
+<script>
+(async () => {
+  try {
+    const { links } = await apiRequest('/admin/support-links');
+  } catch (e) {
+    document.getElementById('supportLinks').innerHTML = '<p style="color:#a6acc2;">Contact support via WhatsApp or email listed on our homepage.</p>';
+  }
+})();
+</script>
+</body>
+</html>

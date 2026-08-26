@@ -1,0 +1,68 @@
+/* ===== ERAN+ Admin Panel Theme ===== */
+:root {
+  --navy: #0f1631; --navy-light: #1a2347;
+  --purple: #6c3ce9; --purple-light: #9b6bff;
+  --green: #2ecc71; --yellow: #ffce54;
+  --white: #ffffff; --gray-100: #f4f5fa; --gray-400: #a6acc2;
+  --radius: 18px; --shadow: 0 10px 30px rgba(15,22,49,0.1);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--gray-100); color: var(--navy); }
+
+.ad-sidebar {
+  position: fixed; top: 0; left: 0; bottom: 0; width: 220px;
+  background: linear-gradient(180deg, var(--navy), var(--navy-light));
+  color: var(--white); padding: 24px 16px; z-index: 200;
+}
+.ad-logo { font-size: 22px; font-weight: 800; margin-bottom: 30px; }
+.ad-logo span { color: var(--yellow); }
+.ad-nav a {
+  display: block; color: var(--gray-400); text-decoration: none;
+  padding: 12px 14px; border-radius: 12px; margin-bottom: 6px; font-size: 14px; font-weight: 600;
+}
+.ad-nav a.active, .ad-nav a:hover { background: rgba(255,255,255,0.1); color: var(--white); }
+
+.ad-main { margin-left: 220px; padding: 28px; }
+.ad-topbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+.ad-title { font-size: 22px; font-weight: 800; }
+
+.ad-stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 16px; margin-bottom: 24px; }
+.ad-stat { background: var(--white); border-radius: var(--radius); box-shadow: var(--shadow); padding: 18px; }
+.ad-stat-value { font-size: 26px; font-weight: 800; color: var(--purple); }
+.ad-stat-label { font-size: 12px; color: var(--gray-400); margin-top: 6px; font-weight: 700; text-transform: uppercase; }
+
+.ad-card { background: var(--white); border-radius: var(--radius); box-shadow: var(--shadow); padding: 20px; margin-bottom: 20px; }
+
+table { width: 100%; border-collapse: collapse; }
+th, td { text-align: left; padding: 12px 10px; font-size: 13px; border-bottom: 1px solid var(--gray-100); }
+th { color: var(--gray-400); font-weight: 700; text-transform: uppercase; font-size: 11px; }
+
+.ad-btn {
+  background: linear-gradient(135deg, var(--purple), var(--purple-light));
+  color: var(--white); border: none; padding: 10px 18px; border-radius: 12px;
+  font-weight: 700; cursor: pointer; font-size: 13px;
+}
+.ad-btn-sm { padding: 6px 12px; font-size: 12px; }
+.ad-btn-danger { background: #c0392b; }
+.ad-btn-outline { background: transparent; border: 1.5px solid var(--purple); color: var(--purple); }
+
+.ad-input, .ad-select, textarea.ad-input {
+  width: 100%; padding: 10px 14px; border-radius: 10px; border: 1.5px solid #e2e4ee;
+  font-size: 14px; margin-bottom: 12px; background: var(--gray-100);
+}
+.ad-label { font-size: 12px; font-weight: 700; color: var(--gray-400); margin-bottom: 4px; display: block; }
+
+.ad-badge { font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 20px; }
+.status-active, .status-DELIVERED, .status-PAID { background: #d4f7e0; color: #1e7e42; }
+.status-disabled, .status-CANCELLED, .status-FAILED { background: #ffd6d6; color: #c0392b; }
+.status-PENDING { background: #fff3cd; color: #856404; }
+.status-CONFIRMED, .status-PROCESSING, .status-SHIPPED { background: #d4e6ff; color: #1a56db; }
+
+.ad-modal-overlay { position: fixed; inset: 0; background: rgba(15,22,49,0.5); display: none; align-items: center; justify-content: center; z-index: 300; }
+.ad-modal-overlay.show { display: flex; }
+.ad-modal { background: var(--white); border-radius: var(--radius); padding: 24px; width: 420px; max-width: 90vw; max-height: 85vh; overflow-y: auto; }
+
+@media (max-width: 768px) {
+  .ad-sidebar { width: 100%; height: auto; position: relative; }
+  .ad-main { margin-left: 0; padding: 16px; }
+}

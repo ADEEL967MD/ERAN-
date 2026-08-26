@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Products - ERAN+</title>
+<link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+<div class="ep-header">
+  <div class="ep-logo">ERAN<span>+</span></div>
+  <div class="ep-header-icons"><a href="cart.html">🛒<span class="ep-badge" data-cart-count>0</span></a></div>
+</div>
+<div class="ep-container">
+  <input class="ep-input" id="searchInput" placeholder="Search products...">
+  <div class="ep-product-grid" id="productGrid"></div>
+</div>
+<div class="ep-bottom-nav">
+  <a href="dashboard.html">🏠<br>Home</a>
+  <a href="products.html" class="active">🛍️<br>Shop</a>
+  <a href="orders.html">📦<br>Orders</a>
+  <a href="profile.html">👤<br>Profile</a>
+</div>
+<script src="assets/js/app.js"></script>
+<script>
+async function loadProducts(search = '') {
+  const { products } = await apiRequest(`/products${search ? '?search=' + encodeURIComponent(search) : ''}`);
+  document.getElementById('productGrid').innerHTML = products.map(p => `
+    <a href="product-details.html?id=${p._id}" class="ep-product-card">
+      <img src="${p.image || 'assets/images/placeholder.png'}" alt="${p.name}">
+      <div class="ep-product-body">
+        <div class="ep-product-name">${p.name}</div>
+        <div class="ep-product-price">${money(p.price)}</div>
+      </div>
+    </a>
+  `).join('') || '<p style="color:#a6acc2;">No products found</p>';
+}
+loadProducts();
+let searchTimer;
+document.getElementById('searchInput').addEventListener('input', (e) => {
+  clearTimeout(searchTimer);
+  searchTimer = setTimeout(() => loadProducts(e.target.value), 400);
+});
+</script>
+</body>
+</html>

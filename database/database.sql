@@ -1,5 +1,0 @@
--- This project now uses MongoDB, not MySQL.
--- Configure MONGODB_URI and MONGODB_DATABASE in Heroku Config Vars.
--- Run: php database/seed.php
--- Collections: users, wallets, packages, investments, deposits, withdrawals,
--- referrals, commissions, transactions, settings, counters.

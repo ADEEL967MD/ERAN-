@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin Login - ERAN+</title>
+<link rel="stylesheet" href="assets/css/admin.css">
+</head>
+<body>
+<div style="display:flex;align-items:center;justify-content:center;min-height:100vh;">
+  <div class="ad-card" style="width:360px;">
+    <div style="text-align:center;font-size:24px;font-weight:800;margin-bottom:6px;">ERAN<span style="color:#ffce54;">+</span></div>
+    <p style="text-align:center;color:#a6acc2;margin-bottom:20px;">Admin Panel</p>
+    <form id="adminLoginForm">
+      <label class="ad-label">Email or Username</label>
+      <input class="ad-input" id="emailOrUsername" required>
+      <label class="ad-label">Password</label>
+      <input class="ad-input" type="password" id="password" required>
+      <button type="submit" class="ad-btn" style="width:100%;">Login</button>
+    </form>
+  </div>
+</div>
+<script src="assets/js/admin.js"></script>
+<script>
+document.getElementById('adminLoginForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  try {
+    const data = await adminApi('/admin/login', 'POST', {
+      emailOrUsername: document.getElementById('emailOrUsername').value,
+      password: document.getElementById('password').value
+    });
+    AdminAuth.setToken(data.token);
+    AdminAuth.setUser(data.user);
+    window.location.href = 'index.html';
+  } catch (err) { toast(err.message, 'error'); }
+});
+</script>
+</body>
+</html>

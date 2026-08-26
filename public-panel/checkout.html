@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Checkout - ERAN+</title>
+<link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+<div class="ep-header"><div class="ep-logo">ERAN<span>+</span></div></div>
+<div class="ep-container">
+  <div class="ep-card">
+    <h1 style="font-size:18px;margin-bottom:12px;">Shipping Details</h1>
+    <form id="checkoutForm">
+      <label class="ep-label">Full Name</label>
+      <input class="ep-input" id="fullName" required>
+      <label class="ep-label">Phone</label>
+      <input class="ep-input" id="phone" required>
+      <label class="ep-label">Address</label>
+      <input class="ep-input" id="address" required>
+      <label class="ep-label">City</label>
+      <input class="ep-input" id="city" required>
+      <label class="ep-label">Postal Code</label>
+      <input class="ep-input" id="postalCode" required>
+      <label class="ep-label">Payment Method</label>
+      <select class="ep-input" id="paymentMethod">
+        <option value="COD">Cash on Delivery</option>
+        <option value="BANK_TRANSFER">Bank Transfer</option>
+      </select>
+      <div style="display:flex;justify-content:space-between;font-weight:800;font-size:18px;margin:14px 0;">
+        <span>Total</span><span id="checkoutTotal"></span>
+      </div>
+      <button type="submit" class="ep-btn ep-btn-green">Place Order</button>
+    </form>
+  </div>
+</div>
+<script src="assets/js/app.js"></script>
+<script>
+requireAuth();
+document.getElementById('checkoutTotal').textContent = money(Cart.total());
+
+document.getElementById('checkoutForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const items = Cart.get();
+  if (!items.length) { toast('Cart is empty', 'error'); return; }
+  try {
+    const { order } = await apiRequest('/orders', 'POST', {
+      items: items.map(i => ({ productId: i.productId, quantity: i.quantity })),
+      paymentMethod: document.getElementById('paymentMethod').value,
+      shippingAddress: {
+        fullName: document.getElementById('fullName').value,
+        phone: document.getElementById('phone').value,
+        address: document.getElementById('address').value,
+        city: document.getElementById('city').value,
+        postalCode: document.getElementById('postalCode').value
+      }
+    });
+    Cart.clear();
+    toast('Order placed successfully!');
+    setTimeout(() => window.location.href = 'orders.html', 1000);
+  } catch (err) { toast(err.message, 'error'); }
+});
+</script>
+</body>
+</html>

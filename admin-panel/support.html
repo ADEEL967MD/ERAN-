@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Support Links - ERAN+ Admin</title>
+<link rel="stylesheet" href="assets/css/admin.css">
+</head>
+<body>
+<div class="ad-sidebar">
+  <div class="ad-logo">ERAN<span>+</span></div>
+  <nav class="ad-nav">
+    <a href="index.html">Dashboard</a>
+    <a href="products.html">Products</a>
+    <a href="orders.html">Orders</a>
+    <a href="customers.html">Customers</a>
+    <a href="payments.html">Payments</a>
+    <a href="users.html">Users</a>
+    <a href="support.html" class="active">Support Links</a>
+    <a href="settings.html">Settings</a>
+    <a href="#" data-admin-logout style="color:#ff8080;">Logout</a>
+  </nav>
+</div>
+<div class="ad-main">
+  <div class="ad-topbar"><div class="ad-title">Support Links</div></div>
+  <div class="ad-card">
+    <label class="ad-label">Title</label>
+    <input class="ad-input" id="linkTitle">
+    <label class="ad-label">URL</label>
+    <input class="ad-input" id="linkUrl">
+    <button class="ad-btn" onclick="addLink()">Add Link</button>
+  </div>
+  <div class="ad-card">
+    <table>
+      <thead><tr><th>Title</th><th>URL</th><th>Status</th></tr></thead>
+      <tbody id="linksBody"></tbody>
+    </table>
+  </div>
+</div>
+<script src="assets/js/admin.js"></script>
+<script>
+requireAdminAuth();
+async function loadLinks() {
+  const { links } = await adminApi('/admin/support-links');
+  document.getElementById('linksBody').innerHTML = links.map(l => `
+    <tr><td>${l.title}</td><td>${l.url}</td><td><span class="ad-badge status-${l.status}">${l.status}</span></td></tr>
+  `).join('');
+}
+loadLinks();
+async function addLink() {
+  const title = document.getElementById('linkTitle').value;
+  const url = document.getElementById('linkUrl').value;
+  if (!title || !url) { toast('Fill all fields', 'error'); return; }
+  await adminApi('/admin/support-links', 'POST', { title, url, status: 'active' });
+  document.getElementById('linkTitle').value = '';
+  document.getElementById('linkUrl').value = '';
+  toast('Link added');
+  loadLinks();
+}
+</script>
+</body>
+</html>

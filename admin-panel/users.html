@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Users - ERAN+ Admin</title>
+<link rel="stylesheet" href="assets/css/admin.css">
+</head>
+<body>
+<div class="ad-sidebar">
+  <div class="ad-logo">ERAN<span>+</span></div>
+  <nav class="ad-nav">
+    <a href="index.html">Dashboard</a>
+    <a href="products.html">Products</a>
+    <a href="orders.html">Orders</a>
+    <a href="customers.html">Customers</a>
+    <a href="payments.html">Payments</a>
+    <a href="users.html" class="active">Users</a>
+    <a href="support.html">Support Links</a>
+    <a href="settings.html">Settings</a>
+    <a href="#" data-admin-logout style="color:#ff8080;">Logout</a>
+  </nav>
+</div>
+<div class="ad-main">
+  <div class="ad-topbar"><div class="ad-title">Manage Users</div></div>
+  <div class="ad-card">
+    <table>
+      <thead><tr><th>Name</th><th>Email</th><th>Status</th><th>Action</th></tr></thead>
+      <tbody id="usersBody"></tbody>
+    </table>
+  </div>
+</div>
+<script src="assets/js/admin.js"></script>
+<script>
+requireAdminAuth();
+async function loadUsers() {
+  const { users } = await adminApi('/admin/users');
+  document.getElementById('usersBody').innerHTML = users.map(u => `
+    <tr>
+      <td>${u.name}</td>
+      <td>${u.email}</td>
+      <td><span class="ad-badge status-${u.status}">${u.status}</span></td>
+      <td>
+        ${u.status === 'active'
+          ? `<button class="ad-btn ad-btn-sm ad-btn-danger" onclick="toggleStatus('${u._id}','suspended')">Suspend</button>`
+          : `<button class="ad-btn ad-btn-sm" onclick="toggleStatus('${u._id}','active')">Activate</button>`}
+      </td>
+    </tr>
+  `).join('');
+}
+loadUsers();
+async function toggleStatus(id, status) {
+  await adminApi(`/admin/users/${id}/status`, 'PATCH', { status });
+  toast('User status updated');
+  loadUsers();
+}
+</script>
+</body>
+</html>

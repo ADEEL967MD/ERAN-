@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Orders - ERAN+ Admin</title>
+<link rel="stylesheet" href="assets/css/admin.css">
+</head>
+<body>
+<div class="ad-sidebar">
+  <div class="ad-logo">ERAN<span>+</span></div>
+  <nav class="ad-nav">
+    <a href="index.html">Dashboard</a>
+    <a href="products.html">Products</a>
+    <a href="orders.html" class="active">Orders</a>
+    <a href="customers.html">Customers</a>
+    <a href="payments.html">Payments</a>
+    <a href="users.html">Users</a>
+    <a href="support.html">Support Links</a>
+    <a href="settings.html">Settings</a>
+    <a href="#" data-admin-logout style="color:#ff8080;">Logout</a>
+  </nav>
+</div>
+<div class="ad-main">
+  <div class="ad-topbar"><div class="ad-title">Orders</div></div>
+  <div class="ad-card">
+    <table>
+      <thead><tr><th>Order ID</th><th>Customer</th><th>Items</th><th>Total</th><th>Payment</th><th>Status</th><th>Date</th><th>Update</th></tr></thead>
+      <tbody id="ordersBody"></tbody>
+    </table>
+  </div>
+</div>
+<script src="assets/js/admin.js"></script>
+<script>
+requireAdminAuth();
+const statuses = ['PENDING','CONFIRMED','PROCESSING','SHIPPED','DELIVERED','CANCELLED'];
+const payStatuses = ['PENDING','PAID','FAILED','REFUNDED'];
+
+async function loadOrders() {
+  const { orders } = await adminApi('/admin/orders');
+  document.getElementById('ordersBody').innerHTML = orders.map(o => `
+    <tr>
+      <td>#${o._id.slice(-6)}</td>
+      <td>${o.userId?.name || 'N/A'}<br><small>${o.userId?.email || ''}</small></td>
+      <td>${o.items.length}</td>
+      <td>${money(o.total)}</td>
+      <td><span class="ad-badge status-${o.paymentStatus}">${o.paymentStatus}</span></td>
+      <td><span class="ad-badge status-${o.orderStatus}">${o.orderStatus}</span></td>
+      <td>${new Date(o.createdAt).toLocaleDateString()}</td>
+      <td>
+        <select class="ad-select" style="width:130px;margin-bottom:0;" onchange="updateStatus('${o._id}', this.value)">
+          ${statuses.map(s => `<option value="${s}" ${s === o.orderStatus ? 'selected' : ''}>${s}</option>`).join('')}
+        </select>
+      </td>
+    </tr>
+  `).join('');
+}
+loadOrders();
+
+async function updateStatus(id, orderStatus) {
+  try {
+    await adminApi(`/admin/orders/${id}`, 'PATCH', { orderStatus });
+    toast('Order status updated');
+  } catch (err) { toast(err.message, 'error'); }
+}
+</script>
+</body>
+</html>

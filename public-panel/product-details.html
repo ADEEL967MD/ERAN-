@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Product Details - ERAN+</title>
+<link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+<div class="ep-header"><div class="ep-logo">ERAN<span>+</span></div></div>
+<div class="ep-container" id="productContainer">Loading...</div>
+<script src="assets/js/app.js"></script>
+<script>
+const id = new URLSearchParams(window.location.search).get('id');
+let currentProduct = null;
+(async () => {
+  const { product } = await apiRequest(`/products/${id}`);
+  currentProduct = product;
+  document.getElementById('productContainer').innerHTML = `
+    <div class="ep-card">
+      <img src="${product.image || 'assets/images/placeholder.png'}" style="width:100%;border-radius:14px;margin-bottom:12px;">
+      <h1 style="font-size:20px;">${product.name}</h1>
+      <div class="ep-product-price" style="font-size:22px;margin:8px 0;">${money(product.price)}</div>
+      <p style="color:#a6acc2;font-size:14px;line-height:1.5;">${product.description}</p>
+      <p style="font-size:13px;color:#a6acc2;margin-top:8px;">${product.stock > 0 ? product.stock + ' in stock' : 'Out of stock'}</p>
+      <label class="ep-label" style="margin-top:14px;">Quantity</label>
+      <input class="ep-input" type="number" id="qty" value="1" min="1" max="${product.stock}">
+      <button class="ep-btn" id="addToCartBtn" ${product.stock === 0 ? 'disabled' : ''}>Add to Cart</button>
+    </div>
+  `;
+  document.getElementById('addToCartBtn').addEventListener('click', () => {
+    const qty = parseInt(document.getElementById('qty').value) || 1;
+    Cart.add(currentProduct, qty);
+    toast('Added to cart!');
+  });
+})();
+</script>
+</body>
+</html>

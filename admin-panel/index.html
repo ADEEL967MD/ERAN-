@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard - ERAN+ Admin</title>
+<link rel="stylesheet" href="assets/css/admin.css">
+</head>
+<body>
+<div class="ad-sidebar">
+  <div class="ad-logo">ERAN<span>+</span></div>
+  <nav class="ad-nav">
+    <a href="index.html" class="active">Dashboard</a>
+    <a href="products.html">Products</a>
+    <a href="orders.html">Orders</a>
+    <a href="customers.html">Customers</a>
+    <a href="payments.html">Payments</a>
+    <a href="users.html">Users</a>
+    <a href="support.html">Support Links</a>
+    <a href="settings.html">Settings</a>
+    <a href="#" data-admin-logout style="color:#ff8080;">Logout</a>
+  </nav>
+</div>
+<div class="ad-main">
+  <div class="ad-topbar"><div class="ad-title">Dashboard</div></div>
+  <div class="ad-stats-grid" id="statsGrid"></div>
+  <div class="ad-card">
+    <h3 style="margin-bottom:12px;">Recent Orders</h3>
+    <table>
+      <thead><tr><th>Order</th><th>Customer</th><th>Total</th><th>Status</th></tr></thead>
+      <tbody id="recentOrdersBody"></tbody>
+    </table>
+  </div>
+</div>
+<script src="assets/js/admin.js"></script>
+<script>
+requireAdminAuth();
+(async () => {
+  const { stats } = await adminApi('/admin/dashboard');
+  document.getElementById('statsGrid').innerHTML = `
+    <div class="ad-stat"><div class="ad-stat-value">${stats.totalUsers}</div><div class="ad-stat-label">Total Users</div></div>
+    <div class="ad-stat"><div class="ad-stat-value">${stats.totalProducts}</div><div class="ad-stat-label">Total Products</div></div>
+    <div class="ad-stat"><div class="ad-stat-value">${stats.totalOrders}</div><div class="ad-stat-label">Total Orders</div></div>
+    <div class="ad-stat"><div class="ad-stat-value">${stats.pendingOrders}</div><div class="ad-stat-label">Pending Orders</div></div>
+    <div class="ad-stat"><div class="ad-stat-value">${stats.completedOrders}</div><div class="ad-stat-label">Completed Orders</div></div>
+    <div class="ad-stat"><div class="ad-stat-value">${money(stats.totalSales)}</div><div class="ad-stat-label">Total Sales</div></div>
+  `;
+  const { orders } = await adminApi('/admin/orders');
+  document.getElementById('recentOrdersBody').innerHTML = orders.slice(0, 8).map(o => `
+    <tr>
+      <td>#${o._id.slice(-6)}</td>
+      <td>${o.userId?.name || 'N/A'}</td>
+      <td>${money(o.total)}</td>
+      <td><span class="ad-badge status-${o.orderStatus}">${o.orderStatus}</span></td>
+    </tr>
+  `).join('');
+})();
+</script>
+</body>
+</html>

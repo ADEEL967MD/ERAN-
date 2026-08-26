@@ -1,1 +1,0 @@
-<?php require_once __DIR__ . '/includes/auth.php'; redirect(isLoggedIn() ? appUrl('dashboard.php') : appUrl('login.php'));

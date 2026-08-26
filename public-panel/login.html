@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Login - ERAN+</title>
+<link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+<div class="ep-header"><div class="ep-logo">ERAN<span>+</span></div></div>
+<div class="ep-container" style="padding-top:40px;">
+  <div class="ep-card">
+    <h1 style="text-align:center;margin-bottom:6px;">Welcome Back</h1>
+    <p style="text-align:center;color:#a6acc2;margin-bottom:20px;">Login to your ERAN+ account</p>
+    <form id="loginForm">
+      <label class="ep-label">Email or Username</label>
+      <input class="ep-input" type="text" id="emailOrUsername" required>
+      <label class="ep-label">Password</label>
+      <input class="ep-input" type="password" id="password" required>
+      <button type="submit" class="ep-btn">Login</button>
+    </form>
+    <p style="text-align:center;margin-top:16px;font-size:14px;">
+      <a href="register.html" style="color:#6c3ce9;">Create an account</a>
+    </p>
+  </div>
+</div>
+<script src="assets/js/app.js"></script>
+<script>
+document.getElementById('loginForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  try {
+    const data = await apiRequest('/auth/login', 'POST', {
+      emailOrUsername: document.getElementById('emailOrUsername').value,
+      password: document.getElementById('password').value
+    });
+    Auth.setToken(data.token);
+    Auth.setUser(data.user);
+    window.location.href = 'dashboard.html';
+  } catch (err) { toast(err.message, 'error'); }
+});
+</script>
+</body>
+</html>

@@ -1,1 +1,0 @@
-<?php foreach (consumeFlashes() as $flash): ?><div class="toast toast-<?= e($flash['type']) ?>"><?= e($flash['message']) ?></div><?php endforeach; ?><footer class="site-footer"><?= e(APP_NAME) ?> &middot; Demo environment only. No real money is processed.</footer>

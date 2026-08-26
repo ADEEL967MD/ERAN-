@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Payments - ERAN+ Admin</title>
+<link rel="stylesheet" href="assets/css/admin.css">
+</head>
+<body>
+<div class="ad-sidebar">
+  <div class="ad-logo">ERAN<span>+</span></div>
+  <nav class="ad-nav">
+    <a href="index.html">Dashboard</a>
+    <a href="products.html">Products</a>
+    <a href="orders.html">Orders</a>
+    <a href="customers.html">Customers</a>
+    <a href="payments.html" class="active">Payments</a>
+    <a href="users.html">Users</a>
+    <a href="support.html">Support Links</a>
+    <a href="settings.html">Settings</a>
+    <a href="#" data-admin-logout style="color:#ff8080;">Logout</a>
+  </nav>
+</div>
+<div class="ad-main">
+  <div class="ad-topbar"><div class="ad-title">Payments</div></div>
+  <div class="ad-card">
+    <table>
+      <thead><tr><th>Order</th><th>Customer</th><th>Amount</th><th>Method</th><th>Reference</th><th>Status</th><th>Date</th></tr></thead>
+      <tbody id="paymentsBody"></tbody>
+    </table>
+  </div>
+</div>
+<script src="assets/js/admin.js"></script>
+<script>
+requireAdminAuth();
+(async () => {
+  const { payments } = await adminApi('/admin/payments');
+  document.getElementById('paymentsBody').innerHTML = payments.map(p => `
+    <tr>
+      <td>#${p.orderId?._id?.slice(-6) || ''}</td>
+      <td>${p.userId?.name || 'N/A'}</td>
+      <td>${money(p.amount)}</td>
+      <td>${p.method}</td>
+      <td>${p.transactionReference || '-'}</td>
+      <td><span class="ad-badge status-${p.status}">${p.status}</span></td>
+      <td>${new Date(p.createdAt).toLocaleDateString()}</td>
+    </tr>
+  `).join('');
+})();
+</script>
+</body>
+</html>

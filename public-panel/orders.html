@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>My Orders - ERAN+</title>
+<link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+<div class="ep-header"><div class="ep-logo">ERAN<span>+</span></div></div>
+<div class="ep-container">
+  <h1 style="font-size:20px;margin-bottom:12px;">My Orders</h1>
+  <div id="ordersList"></div>
+</div>
+<div class="ep-bottom-nav">
+  <a href="dashboard.html">🏠<br>Home</a>
+  <a href="products.html">🛍️<br>Shop</a>
+  <a href="orders.html" class="active">📦<br>Orders</a>
+  <a href="profile.html">👤<br>Profile</a>
+</div>
+<script src="assets/js/app.js"></script>
+<script>
+requireAuth();
+(async () => {
+  const { orders } = await apiRequest('/user/orders');
+  document.getElementById('ordersList').innerHTML = orders.map(o => `
+    <div class="ep-card">
+      <div style="display:flex;justify-content:space-between;">
+        <strong>#${o._id.slice(-6)}</strong>
+        <span class="ep-badge-status status-${o.orderStatus}">${o.orderStatus}</span>
+      </div>
+      <div style="color:#a6acc2;font-size:13px;margin:6px 0;">${new Date(o.createdAt).toLocaleDateString()} · ${o.items.length} item(s)</div>
+      <div style="font-weight:800;color:#6c3ce9;">${money(o.total)}</div>
+    </div>
+  `).join('') || '<p style="color:#a6acc2;">No orders yet</p>';
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Settings - ERAN+ Admin</title>
+<link rel="stylesheet" href="assets/css/admin.css">
+</head>
+<body>
+<div class="ad-sidebar">
+  <div class="ad-logo">ERAN<span>+</span></div>
+  <nav class="ad-nav">
+    <a href="index.html">Dashboard</a>
+    <a href="products.html">Products</a>
+    <a href="orders.html">Orders</a>
+    <a href="customers.html">Customers</a>
+    <a href="payments.html">Payments</a>
+    <a href="users.html">Users</a>
+    <a href="support.html">Support Links</a>
+    <a href="settings.html" class="active">Settings</a>
+    <a href="#" data-admin-logout style="color:#ff8080;">Logout</a>
+  </nav>
+</div>
+<div class="ad-main">
+  <div class="ad-topbar"><div class="ad-title">Website Settings</div></div>
+  <div class="ad-card">
+    <label class="ad-label">Site Name</label>
+    <input class="ad-input" id="siteName" value="ERAN+">
+    <label class="ad-label">Shipping Fee (Rs.)</label>
+    <input class="ad-input" type="number" id="shippingFee">
+    <label class="ad-label">Support WhatsApp Number</label>
+    <input class="ad-input" id="supportPhone">
+    <button class="ad-btn" onclick="saveSettings()">Save Settings</button>
+  </div>
+</div>
+<script src="assets/js/admin.js"></script>
+<script>
+requireAdminAuth();
+async function saveSettings() {
+  try {
+    await adminApi('/admin/settings', 'PATCH', { key: 'siteName', value: document.getElementById('siteName').value });
+    await adminApi('/admin/settings', 'PATCH', { key: 'shippingFee', value: document.getElementById('shippingFee').value });
+    await adminApi('/admin/settings', 'PATCH', { key: 'supportPhone', value: document.getElementById('supportPhone').value });
+    toast('Settings saved');
+  } catch (err) { toast(err.message, 'error'); }
+}
+</script>
+</body>
+</html>
