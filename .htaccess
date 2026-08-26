@@ -1,3 +1,0 @@
-Options -Indexes
-RewriteEngine On
-RewriteRule ^admin/api/?(.*)$ admin/api/index.php [QSA,L]

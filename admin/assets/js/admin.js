@@ -1,1 +1,0 @@
-document.querySelectorAll('[data-confirm]').forEach(b=>b.addEventListener('click',e=>{if(!confirm(b.dataset.confirm))e.preventDefault()}));setTimeout(()=>document.querySelectorAll('.flash').forEach(e=>e.remove()),4500);

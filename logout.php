@@ -1,1 +1,1 @@
-<?php require_once __DIR__.'/includes/api.php';if(!empty($_SESSION['api_token']))api_call('auth/logout','POST');$_SESSION=[];session_destroy();go('login.php');
+<?php require_once __DIR__ . '/includes/auth.php'; logoutUser();

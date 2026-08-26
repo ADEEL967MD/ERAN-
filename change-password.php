@@ -1,18 +1,4 @@
 <?php
-require_once __DIR__.'/includes/auth.php';
-$page_title='Change Password';
-$error='';
-if($_SERVER['REQUEST_METHOD']==='POST'){
-  check_csrf();
-  $new=(string)($_POST['new_password']??'');
-  $confirm=(string)($_POST['confirm_password']??'');
-  if($new!==$confirm){
-    $error='New password confirmation does not match.';
-  } else {
-    $r=api_call('auth/change-password','POST',['current_password'=>(string)($_POST['current_password']??''),'new_password'=>$new]);
-    if(!empty($r['ok'])){flash('success','Password updated successfully.');go('change-password.php');}
-    $error=$r['error']??'Could not update password.';
-  }
-}
-include __DIR__.'/includes/header.php';
-?><div class="section"><section class="form-card"><h1>Change Password</h1><p>Update your password through the secure Admin API.</p><?php if($error):?><div class="flash error"><?=e($error)?></div><?php endif;?><div class="notice">SECURE ACCOUNT<br>Never share your password with anyone.</div><form method="post" style="margin-top:16px"><input type="hidden" name="csrf" value="<?=e(csrf())?>"><div class="field"><label>CURRENT PASSWORD</label><input class="input" type="password" name="current_password" required></div><div class="field"><label>NEW PASSWORD (8+ CHARACTERS)</label><input class="input" type="password" name="new_password" minlength="8" required></div><div class="field"><label>CONFIRM PASSWORD</label><input class="input" type="password" name="confirm_password" minlength="8" required></div><button class="button button-primary">UPDATE PASSWORD</button></form></section></div><?php include __DIR__.'/includes/footer.php';?>
+require_once __DIR__ . '/includes/auth.php'; requireLogin(); $userId=(int)$_SESSION['user_id']; $pageTitle='Change Password'; $error=''; $success='';
+if($_SERVER['REQUEST_METHOD']==='POST'){ if(!verifyCsrf($_POST['csrf_token']??null))$error='Your session expired.'; else { $current=(string)post('current_password'); $new=(string)post('new_password'); $confirm=(string)post('confirm_password'); $user=getUserById($userId); if(!$user||!password_verify($current,$user['password_hash']))$error='Current password is incorrect.'; elseif(strlen($new)<6)$error='New password must be at least 6 characters.'; elseif($new!==$confirm)$error='New passwords do not match.'; else { $s=getDB()->prepare('UPDATE users SET password_hash=? WHERE id=?'); $s->execute([password_hash($new,PASSWORD_DEFAULT),$userId]); $success='Password changed successfully.'; } } }
+?><!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title><?= e($pageTitle) ?> - <?= e(APP_NAME) ?></title><link rel="stylesheet" href="assets/css/style.css"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"></head><body><?php include __DIR__.'/includes/header.php'; ?><?php include __DIR__.'/includes/sidebar.php'; ?><main class="main-content"><div class="page-title"><span class="eyebrow">SECURITY</span><h1>Change password</h1></div><section class="panel narrow-panel"><?php if($error): ?><div class="alert error"><?= e($error) ?></div><?php endif; ?><?php if($success): ?><div class="alert success"><?= e($success) ?></div><?php endif; ?><form method="post" class="form-stack"><?= csrfField() ?><label>Current password<input type="password" name="current_password" required></label><label>New password<input type="password" name="new_password" minlength="6" required></label><label>Confirm new password<input type="password" name="confirm_password" minlength="6" required></label><button class="btn primary" type="submit">Update password</button></form></section></main><?php include __DIR__.'/includes/bottom-nav.php'; ?><?php include __DIR__.'/includes/footer.php'; ?><script src="assets/js/app.js"></script></body></html>
