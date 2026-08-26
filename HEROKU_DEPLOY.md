@@ -1,113 +1,28 @@
-# Global Mart Demo — Heroku deployment
+# MongoDB + Heroku deployment
 
-یہ files موجودہ `global-mart-demo` project کے root folder میں copy کریں۔ **موجودہ project کی files overwrite نہ کریں**؛ صرف یہ نئی files add کریں:
+This version keeps the complete `global-mart-demo` structure and uses MongoDB. The old MySQL `DB_HOST`/`DB_NAME`/`DB_USER`/`DB_PASS` variables must not be used.
 
-| File | کہاں رکھنی ہے |
-|---|---|
-| `Procfile` | project root، یعنی `index.php` کے ساتھ |
-| `composer.json` | project root، یعنی `index.php` کے ساتھ |
-| `.env.example` | project root، صرف variable names کے reference کے لیے |
-| `HEROKU_DEPLOY.md` | project root، deployment guide کے طور پر |
-
-## 1. Files copy کریں
-
-`Procfile` اور `composer.json` لازماً project کے root میں ہوں۔ Folder structure تقریباً اس طرح نظر آنا چاہیے:
-
-```text
-global-mart-demo/
-├── Procfile
-├── composer.json
-├── index.php
-├── config/
-├── includes/
-├── admin/
-├── assets/
-└── database/
-```
-
-## 2. Heroku app بنائیں
-
-اپنے terminal میں project root کھول کر Git repository بنائیں اور Heroku app create کریں:
+## Required Config Vars
 
 ```bash
-git init
+heroku config:set MONGODB_URI="mongodb+srv://USERNAME:PASSWORD@CLUSTER.mongodb.net/?retryWrites=true&w=majority" --app YOUR-APP-NAME
+heroku config:set MONGODB_DATABASE="global_mart_demo" --app YOUR-APP-NAME
+heroku config:set APP_URL="https://YOUR-ACTUAL-HEROKU-APP-URL" --app YOUR-APP-NAME
+heroku config:set APP_DEBUG="false" --app YOUR-APP-NAME
+```
+
+URL-encode special characters in the MongoDB username or password. For example, a password containing `@`, `:`, `/`, `?`, or `#` must be encoded before it is placed inside the URI. Never share the URI publicly; rotate any credential that has already been exposed.
+
+## Deploy and seed
+
+```bash
 git add .
-git commit -m "Prepare Global Mart demo for Heroku"
-heroku login
-heroku create YOUR-APP-NAME
-git push heroku main
-```
-
-اگر branch کا نام `master` ہو تو آخری command یہ استعمال کریں:
-
-```bash
-git push heroku master
-```
-
-## 3. MySQL database configure کریں
-
-Heroku app کے لیے ایک external MySQL/MariaDB provider استعمال کریں۔ Provider سے یہ values حاصل کر کے Heroku Config Vars میں add کریں:
-
-```bash
-heroku config:set DB_HOST="your-mysql-host"
-heroku config:set DB_NAME="global_mart_demo"
-heroku config:set DB_USER="your-mysql-user"
-heroku config:set DB_PASS="your-mysql-password"
-heroku config:set APP_URL="https://YOUR-APP-NAME.herokuapp.com"
-heroku config:set APP_NAME="Global Mart Demo"
-heroku config:set APP_DEBUG="false"
-```
-
-Database provider کے SQL console یا MySQL client سے project کی `database/database.sql` file import کریں۔ پھر demo users بنانے کے لیے Heroku environment کے ساتھ seed script چلائیں:
-
-```bash
-heroku run php database/seed.php
-```
-
-## 4. `localhost` redirect error سے بچیں
-
-اگر browser میں `localhost refused to connect` آئے تو آپ Heroku app کے بجائے local address کھول رہے ہیں، یا Heroku Config Vars میں `APP_URL` غلطی سے localhost رکھا گیا ہے۔ ہمیشہ Heroku Dashboard کے **Open app** button سے ملنے والا اصل HTTPS URL استعمال کریں، مثلاً:
-
-```bash
-heroku config:set APP_URL="https://YOUR-ACTUAL-HEROKU-APP-URL"
-```
-
-Updated `config/database.php` اب `APP_URL` نہ ہونے کی صورت میں current Heroku host خود detect بھی کرتا ہے، لیکن production میں واضح `APP_URL` set کرنا recommended ہے۔ Fix کے بعد latest code دوبارہ deploy کریں:
-
-```bash
-git add config/database.php HEROKU_DEPLOY.md
-git commit -m "Fix Heroku localhost redirect"
+git commit -m "Convert Global Mart demo to MongoDB"
 git push origin main
+heroku run php database/seed.php --app YOUR-APP-NAME
+heroku open --app YOUR-APP-NAME
 ```
 
-## 5. Open اور verify کریں
+The `Procfile` starts Apache using `vendor/bin/heroku-php-apache2`. The `composer.lock` file must be committed. `config/database.php` also detects the current HTTPS host when `APP_URL` is absent, but an explicit `APP_URL` Config Var is recommended.
 
-```bash
-heroku open
-heroku logs --tail
-```
-
-User login page:
-
-```text
-https://YOUR-APP-NAME.herokuapp.com/login.php
-```
-
-Admin login page:
-
-```text
-https://YOUR-APP-NAME.herokuapp.com/admin/login.php
-```
-
-Demo credentials:
-
-```text
-User:  demo / demo123
-Admin: admin / admin123
-```
-
-## Important notes
-
-`config/database.php` پہلے ہی environment variables پڑھتا ہے، اس لیے Heroku پر database password کو source code میں لکھنے کی ضرورت نہیں ہے۔ `APP_DEBUG=false` production deployment کے لیے رکھیں۔ یہ application demo/sandbox ہے؛ حقیقی payments، investments یا guaranteed returns process نہیں کرتی۔
-
-Heroku filesystem persistent storage نہیں ہے۔ اگر بعد میں receipt یا image upload feature شامل کیا جائے تو local `assets/images` کے بجائے cloud object storage استعمال کریں۔
+If the site still shows a database error, run `heroku logs --tail --app YOUR-APP-NAME` and verify that `MONGODB_URI` is present, the Atlas database user password is correct, and Atlas Network Access permits the application to connect. Use the MongoDB Atlas connection string, not a MySQL URI.

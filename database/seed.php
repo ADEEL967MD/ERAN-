@@ -1,37 +1,10 @@
 <?php
-// Run from the project root after importing database.sql: php database/seed.php
-require_once __DIR__ . '/../config/database.php';
-$db = getDB();
-$users = [
-    ['Administrator', 'admin', 'admin@globalmart.com', '03000000000', 'admin123', 'ADMIN001', 1],
-    ['Demo User', 'demo', 'demo@globalmart.com', '03000000001', 'demo123', 'DEMO001', 0],
-];
-
-foreach ($users as $u) {
-    $s = $db->prepare('SELECT id FROM users WHERE username = ?');
-    $s->execute([$u[1]]);
-    $id = (int)($s->fetchColumn() ?: 0);
-    if (!$id) {
-        $s = $db->prepare('INSERT INTO users(name,username,email,phone,password_hash,referral_code,is_admin) VALUES(?,?,?,?,?,?,?)');
-        $s->execute([$u[0], $u[1], $u[2], $u[3], password_hash($u[4], PASSWORD_DEFAULT), $u[5], $u[6]]);
-        $id = (int)$db->lastInsertId();
-    }
-    $s = $db->prepare('INSERT INTO wallets(user_id,balance,total_invested,profit_30_days,commission) VALUES(?,?,?,?,?) ON DUPLICATE KEY UPDATE user_id=VALUES(user_id)');
-    $s->execute([$id, $u[1] === 'demo' ? 5000 : 0, $u[1] === 'demo' ? 380 : 0, $u[1] === 'demo' ? 127 : 0, $u[1] === 'demo' ? 41.8 : 0]);
-
-    if ($u[1] === 'demo') {
-        $s = $db->prepare('SELECT id FROM investments WHERE user_id = ? LIMIT 1');
-        $s->execute([$id]);
-        if (!$s->fetchColumn()) {
-            $s = $db->prepare('SELECT id, daily_profit, validity_days, price FROM packages WHERE id = 1 AND status = "active"');
-            $s->execute();
-            $package = $s->fetch();
-            if ($package) {
-                $s = $db->prepare('INSERT INTO investments(user_id,package_id,amount,daily_profit,validity_days,status,started_at,ends_at) VALUES(?,?,?,?,?,"active",NOW(),DATE_ADD(NOW(), INTERVAL ? DAY))');
-                $s->execute([$id, $package['id'], $package['price'], $package['daily_profit'], $package['validity_days'], $package['validity_days']]);
-            }
-        }
-    }
-}
-
-echo "Seed complete. Admin: admin / admin123 | Demo: demo / demo123\n";
+// Run from the project root after setting MONGODB_URI: php database/seed.php
+require_once __DIR__ . '/../includes/functions.php';
+$db=getDB();
+require_once __DIR__ . '/mongodb-indexes.php';
+$defaults=[['site_name','Global Mart Demo'],['level1_commission','11'],['level2_commission','3'],['level3_commission','2'],['support_admin','#'],['support_channel','#'],['support_telegram','#'],['support_install','#']];foreach($defaults as $item)setSetting($item[0],$item[1]);
+$packages=[['Wireless Earbuds Pack','Demo package for testing account flows.',380,90,12.70],['Smart Watch Pack','Feature-rich demo campaign package.',750,90,25],['Home Security Pack','Complete demo home security campaign.',1500,120,50],['Premium Gadget Pack','Premium demo gadget bundle.',3000,180,100]];foreach($packages as $p){$existing=collection('packages')->findOne(['name'=>$p[0]]);if(!$existing)collection('packages')->insertOne(['id'=>nextId('packages'),'name'=>$p[0],'description'=>$p[1],'price'=>$p[2],'validity_days'=>$p[3],'daily_profit'=>$p[4],'total_return'=>$p[4]*$p[3],'status'=>'active','created_at'=>nowIso()]);}
+$users=[['Administrator','admin','admin@globalmart.com','03000000000','admin123','ADMIN001',1],['Demo User','demo','demo@globalmart.com','03000000001','demo123','DEMO001',0]];foreach($users as $u){$user=docArray(collection('users')->findOne(['username'=>$u[1]]));if(!$user){$id=nextId('users');$now=nowIso();collection('users')->insertOne(['id'=>$id,'name'=>$u[0],'username'=>$u[1],'email'=>$u[2],'phone'=>$u[3],'password_hash'=>password_hash($u[4],PASSWORD_DEFAULT),'referral_code'=>$u[5],'referred_by'=>null,'status'=>'active','is_admin'=>$u[6],'created_at'=>$now]);collection('wallets')->insertOne(['id'=>nextId('wallets'),'user_id'=>$id,'balance'=>$u[1]==='demo'?5000:0,'total_invested'=>$u[1]==='demo'?380:0,'total_withdrawn'=>0,'profit_30_days'=>$u[1]==='demo'?127:0,'commission'=>$u[1]==='demo'?41.8:0,'last_earning_at'=>null,'created_at'=>$now,'updated_at'=>$now]);}}
+$demo=docArray(collection('users')->findOne(['username'=>'demo']));if($demo&&!collection('investments')->findOne(['user_id'=>(int)$demo['id']])){$p=docArray(collection('packages')->findOne(['name'=>'Wireless Earbuds Pack']));if($p){$start=nowIso();collection('investments')->insertOne(['id'=>nextId('investments'),'user_id'=>(int)$demo['id'],'package_id'=>(int)$p['id'],'amount'=>(float)$p['price'],'daily_profit'=>(float)$p['daily_profit'],'validity_days'=>(int)$p['validity_days'],'status'=>'active','started_at'=>$start,'ends_at'=>date('c',strtotime('+90 days')),'created_at'=>$start]);}}
+echo "MongoDB seed complete. Admin: admin / admin123 | Demo: demo / demo123\n";

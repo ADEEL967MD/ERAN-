@@ -9,8 +9,9 @@ if (!(PHP_VERSION_ID >= 80100)) {
 }
 
 $missingExtensions = array();
-extension_loaded('pdo') || $missingExtensions[] = 'pdo';
-extension_loaded('pdo_mysql') || $missingExtensions[] = 'pdo_mysql';
+extension_loaded('hash') || $missingExtensions[] = 'hash';
+extension_loaded('json') || $missingExtensions[] = 'json';
+extension_loaded('mongodb') || $missingExtensions[] = 'mongodb';
 
 if ($missingExtensions) {
     $issues[] = 'Your Composer dependencies require the following PHP extensions to be installed: ' . implode(', ', $missingExtensions) . '.';

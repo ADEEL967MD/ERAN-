@@ -1,19 +1,15 @@
-# Global Mart Demo
+# Global Mart Demo — MongoDB edition
 
-This project is a **demo/sandbox PHP application**. It does not process real payments, investments, withdrawals, or guaranteed returns.
+This is a demo/sandbox PHP 8 application. Deposits, withdrawals, investments and earnings are simulated records only. It does not process real money.
 
-## Requirements
+The original project structure is preserved, but the data layer uses MongoDB through the official PHP library. Set `MONGODB_URI` and `MONGODB_DATABASE` in Heroku Config Vars; do not place credentials in source code.
 
-PHP 8.1 or newer, the PDO MySQL extension, MySQL 8/MariaDB, and Apache or another PHP-capable web server.
+## Deploy setup
 
-## Installation
+1. Import this project into GitHub with `Procfile`, `composer.json`, and `composer.lock` at the repository root.
+2. Create a MongoDB Atlas database and allow the Heroku application's outbound access according to your Atlas network access policy.
+3. Set `MONGODB_URI`, `MONGODB_DATABASE`, `APP_URL`, and `APP_DEBUG=false` in Heroku Config Vars.
+4. Deploy the branch, then run `heroku run php database/seed.php --app YOUR-APP-NAME`.
+5. Open the HTTPS URL shown by Heroku, not `localhost`.
 
-1. Copy the `global-mart-demo` folder into your web root.
-2. Import `database/database.sql` into MySQL.
-3. Update database values in `config/database.php`, or set `DB_HOST`, `DB_NAME`, `DB_USER`, `DB_PASS`, and `APP_URL` environment variables.
-4. From the project root, run `php database/seed.php` to create demo users.
-5. Open `login.php`.
-
-Demo credentials after seeding are `demo / demo123` and `admin / admin123` for the administrator panel at `admin/login.php`.
-
-The database import is safe to run on a new database. The application uses prepared statements, CSRF tokens, password hashing, session regeneration after login, and output escaping. For production use, replace the demo payment flows with a properly reviewed payment system and set `APP_DEBUG=false`.
+Demo accounts after seeding: `demo / demo123` and `admin / admin123` at `admin/login.php`.
