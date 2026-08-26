@@ -64,7 +64,23 @@ Database provider کے SQL console یا MySQL client سے project کی `database
 heroku run php database/seed.php
 ```
 
-## 4. Open اور verify کریں
+## 4. `localhost` redirect error سے بچیں
+
+اگر browser میں `localhost refused to connect` آئے تو آپ Heroku app کے بجائے local address کھول رہے ہیں، یا Heroku Config Vars میں `APP_URL` غلطی سے localhost رکھا گیا ہے۔ ہمیشہ Heroku Dashboard کے **Open app** button سے ملنے والا اصل HTTPS URL استعمال کریں، مثلاً:
+
+```bash
+heroku config:set APP_URL="https://YOUR-ACTUAL-HEROKU-APP-URL"
+```
+
+Updated `config/database.php` اب `APP_URL` نہ ہونے کی صورت میں current Heroku host خود detect بھی کرتا ہے، لیکن production میں واضح `APP_URL` set کرنا recommended ہے۔ Fix کے بعد latest code دوبارہ deploy کریں:
+
+```bash
+git add config/database.php HEROKU_DEPLOY.md
+git commit -m "Fix Heroku localhost redirect"
+git push origin main
+```
+
+## 5. Open اور verify کریں
 
 ```bash
 heroku open

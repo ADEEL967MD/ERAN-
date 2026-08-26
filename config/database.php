@@ -8,7 +8,15 @@ define('DB_USER', getenv('DB_USER') ?: 'root');
 define('DB_PASS', getenv('DB_PASS') ?: '');
 define('DB_CHARSET', 'utf8mb4');
 define('APP_NAME', getenv('APP_NAME') ?: 'Global Mart Demo');
-define('APP_URL', rtrim(getenv('APP_URL') ?: 'http://localhost/global-mart-demo', '/'));
+function detectAppUrl(): string {
+    $configured = trim((string)getenv('APP_URL'));
+    if ($configured !== '') return rtrim($configured, '/');
+    $forwardedProto = strtolower((string)($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? ''));
+    $isHttps = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') || $forwardedProto === 'https';
+    $host = preg_replace('/[^A-Za-z0-9.:-]/', '', (string)($_SERVER['HTTP_HOST'] ?? 'localhost')) ?: 'localhost';
+    return ($isHttps ? 'https' : 'http') . '://' . $host;
+}
+define('APP_URL', detectAppUrl());
 define('APP_DEBUG', filter_var(getenv('APP_DEBUG') ?: 'false', FILTER_VALIDATE_BOOLEAN));
 
 if (session_status() !== PHP_SESSION_ACTIVE) {
