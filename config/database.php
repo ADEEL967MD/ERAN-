@@ -7,8 +7,12 @@ use MongoDB\Client;
 use MongoDB\Database;
 use MongoDB\Driver\Exception\Exception as MongoException;
 
-define('MONGODB_URI', trim((string)(getenv('MONGODB_URI') ?: getenv('MONGO_URI'))));
-define('MONGODB_DATABASE', trim((string)(getenv('MONGODB_DATABASE') ?: getenv('DB_NAME') ?: 'global_mart_demo')));
+// Embedded connection settings. Environment variables remain optional overrides.
+// IMPORTANT: rotate the password in MongoDB Atlas if this URI has been shared publicly.
+const EMBEDDED_MONGODB_URI = 'mongodb+srv://Adeel-xtech-55:Adeel03035512967@adeel5586.j50xwhm.mongodb.net/?appName=Adeel5586';
+const EMBEDDED_MONGODB_DATABASE = 'global_mart_demo';
+define('MONGODB_URI', trim((string)(getenv('MONGODB_URI') ?: getenv('MONGO_URI') ?: EMBEDDED_MONGODB_URI)));
+define('MONGODB_DATABASE', trim((string)(getenv('MONGODB_DATABASE') ?: getenv('DB_NAME') ?: EMBEDDED_MONGODB_DATABASE)));
 define('APP_NAME', getenv('APP_NAME') ?: 'Global Mart Demo');
 define('APP_DEBUG', filter_var(getenv('APP_DEBUG') ?: 'false', FILTER_VALIDATE_BOOLEAN));
 
@@ -36,7 +40,7 @@ function getDB(): Database {
     if ($db instanceof Database) return $db;
     if (MONGODB_URI === '') {
         http_response_code(500);
-        exit('<h1>Database connection error</h1><p>MONGODB_URI is not configured in Heroku Config Vars.</p>');
+        exit('<h1>Database connection error</h1><p>Embedded MongoDB URI is empty. Update EMBEDDED_MONGODB_URI in config/database.php.</p>');
     }
     try {
         $client = new Client(MONGODB_URI, [], ['serverSelectionTimeoutMS' => 8000, 'connectTimeoutMS' => 8000]);
@@ -45,7 +49,7 @@ function getDB(): Database {
         return $db;
     } catch (Throwable $exception) {
         http_response_code(500);
-        $message = APP_DEBUG ? $exception->getMessage() : 'Unable to connect to MongoDB. Check MONGODB_URI and MONGODB_DATABASE in Heroku Config Vars.';
+        $message = APP_DEBUG ? $exception->getMessage() : 'Unable to connect to MongoDB. Check the embedded URI, database name, Atlas user password, and Atlas Network Access settings.';
         exit('<h1>Database connection error</h1><p>' . htmlspecialchars($message, ENT_QUOTES, 'UTF-8') . '</p>');
     }
 }
